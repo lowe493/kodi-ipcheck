@@ -37,12 +37,12 @@ def fetch_ip_info():
 def show_notification(title, message, warning=False):
     if KODI_AVAILABLE:
         icon = xbmcgui.NOTIFICATION_ERROR if warning else xbmcgui.NOTIFICATION_INFO
-
+        duration = 30000 if warning else 8000
         xbmcgui.Dialog().notification(
             heading=title,
             message=message,
             icon=icon,
-            time=8000
+            time=duration
         )
     else:
         print(f"{title}: {message}")
@@ -64,8 +64,8 @@ def check_vpn_status():
 
     if is_unprotected_isp(isp):
         show_notification(
-            "VPN REQUIRED",
-            f"Public ISP detected: {message}",
+            "VPN NOT CONNECTED",
+            f"Plusnet Detected: {message}",
             warning=True
         )
         return False
