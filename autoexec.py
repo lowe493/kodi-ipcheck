@@ -82,7 +82,7 @@ def main():
     check_vpn_status()
 
     # Then repeat every 10 minutes
-    interval = 30  # 10 minutes in seconds
+    interval = 600  # 10 minutes in seconds
 
     while True:
         # Stop cleanly if Kodi exits
