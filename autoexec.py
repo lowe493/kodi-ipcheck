@@ -1,11 +1,9 @@
 import urllib.request
 import json
+import time
 
 TOKEN = "87e00bca0b8e3f"
 
-# =========================
-# SAFE KODI DETECTION
-# =========================
 try:
     import xbmc
     import xbmcgui
@@ -34,25 +32,20 @@ def fetch_ip_info():
 
 
 # =========================
-# OUTPUT HANDLERS
+# OUTPUT
 # =========================
 def show_notification(title, message, warning=False):
-    """
-    Works only in Kodi. Safe fallback in Windows.
-    """
     if KODI_AVAILABLE:
-        icon = xbmcgui.NOTIFICATION_WARNING if warning else xbmcgui.NOTIFICATION_INFO
+        icon = xbmcgui.NOTIFICATION_ERROR if warning else xbmcgui.NOTIFICATION_INFO
 
         xbmcgui.Dialog().notification(
             heading=title,
             message=message,
             icon=icon,
-            time=12000
+            time=8000
         )
     else:
-        # Windows debug fallback
-        prefix = "⚠️ " if warning else ""
-        print(f"{prefix}{title}: {message}")
+        print(f"{title}: {message}")
 
 
 # =========================
@@ -63,24 +56,47 @@ def is_unprotected_isp(isp):
 
 
 # =========================
-# MAIN
+# CHECK FUNCTION
 # =========================
-def main():
+def check_vpn_status():
     isp, ip = fetch_ip_info()
     message = f"{isp}: {ip}"
 
     if is_unprotected_isp(isp):
         show_notification(
             "VPN REQUIRED",
-            f"Public ISP detected: {message}\nEnable VPN immediately.",
+            f"Public ISP detected: {message}",
             warning=True
         )
-    else:
-        show_notification(
-            "Network Info",
-            message,
-            warning=False
-        )
+        return False
+    return True
+
+
+# =========================
+# MAIN LOOP (KODI SAFE)
+# =========================
+def main():
+    monitor = xbmc.Monitor() if KODI_AVAILABLE else None
+
+    # Run once immediately
+    check_vpn_status()
+
+    # Then repeat every 10 minutes
+    interval = 600  # 10 minutes in seconds
+
+    while True:
+        # Stop cleanly if Kodi exits
+        if monitor and monitor.abortRequested():
+            break
+
+        # Wait in small chunks so Kodi can interrupt cleanly
+        for _ in range(interval):
+            if monitor and monitor.abortRequested():
+                return
+            time.sleep(1)
+
+        # Only notify if VPN is NOT active
+        check_vpn_status()
 
 
 if __name__ == "__main__":
