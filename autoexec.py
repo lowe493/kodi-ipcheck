@@ -61,14 +61,16 @@ def is_unprotected_isp(isp):
 def check_vpn_status():
     isp, ip = fetch_ip_info()
     message = f"{isp}: {ip}"
+    title = "VPN NOT CONNECTED"
+    detail = f"Plusnet Detected - {message}"
 
     if is_unprotected_isp(isp):
         show_notification(
-            "VPN NOT CONNECTED",
-            f"Plusnet Detected - {message}",
+            title,
+            detail,
             warning=True
         )
-        xbmcgui.Dialog().ok("Title", "Message")
+        xbmcgui.Dialog().ok(title, detail)
         return False
     return True
 
