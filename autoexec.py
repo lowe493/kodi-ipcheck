@@ -70,7 +70,7 @@ def check_vpn_status():
             detail,
             warning=True
         )
-        xbmcgui.Dialog().ok(title, detail)
+        xbmcgui.Dialog().ok(title, f"{detail}\nCheck that the VPN is connected")
         return False
     return True
 
