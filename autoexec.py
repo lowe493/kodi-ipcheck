@@ -58,7 +58,7 @@ def is_unprotected_isp(isp):
 # =========================
 # CHECK FUNCTION
 # =========================
-def check_vpn_status():
+def check_vpn_status(first_run=False):
     isp, ip = fetch_ip_info()
     message = f"{isp}: {ip}"
     title = "VPN NOT CONNECTED"
@@ -72,6 +72,18 @@ def check_vpn_status():
         )
         xbmcgui.Dialog().ok(title, f"{detail}\nCheck that the VPN is connected IMMEDIATLY!")
         return False
+
+    # VPN CONNECTED (startup only)
+    if first_run:
+        title = "VPN CONNECTED"
+        detail = f"Protected - {message}"
+
+        show_notification(
+            title,
+            detail,
+            warning=False
+        )
+
     return True
 
 
@@ -82,7 +94,7 @@ def main():
     monitor = xbmc.Monitor() if KODI_AVAILABLE else None
 
     # Run once immediately
-    check_vpn_status()
+    check_vpn_status(first_run=True)
 
     # Then repeat every 10 minutes
     interval = 600  # 10 minutes in seconds
